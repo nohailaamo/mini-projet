@@ -64,12 +64,12 @@ L'application est composée des services suivants:
 ## 🛠 Technologies
 
 ### Backend
-- **Spring Boot 4.0.1**: Framework Java pour microservices
+- **Spring Boot 3.2.1**: Framework Java pour microservices
 - **Spring Cloud Gateway**: API Gateway
 - **Spring Security**: Sécurité et OAuth2
 - **Spring Data JPA**: Accès aux données
 - **OpenFeign**: Communication inter-services
-- **PostgreSQL**: Base de données relationnelle
+- **PostgreSQL**: Base de données relationnelle (ou H2 pour dev local)
 
 ### Frontend
 - **React 18**: Framework JavaScript
@@ -95,11 +95,15 @@ L'application est composée des services suivants:
 
 ## 📦 Prérequis
 
+### Pour Docker (déploiement conteneurisé)
 - Docker Desktop (version 20+)
 - Docker Compose (version 2+)
-- Java 17 ou supérieur (pour build local)
-- Node.js 18+ et npm (pour développement frontend)
-- Maven 3.8+ (pour build local)
+
+### Pour développement local (SANS Docker)
+- **Java 17 ou supérieur** (JDK)
+- **Maven 3.8+**
+- **Node.js 18+** et **npm**
+- **PostgreSQL 15** (optionnel, peut être remplacé par H2 en mémoire)
 
 ## 🚀 Installation
 
@@ -165,7 +169,48 @@ docker-compose up -d keycloak keycloak-db
 
 ## 🎯 Démarrage
 
-### Démarrage complet avec Docker Compose
+### ⚡ Démarrage Local SANS Docker (Recommandé pour développement)
+
+**Option la plus simple - Avec H2 en mémoire :**
+
+```bash
+# Démarrage automatique de tous les services
+./start-local.sh --h2
+
+# Puis démarrer le frontend dans un nouveau terminal
+cd frontend
+npm install
+npm start
+```
+
+**Ou avec PostgreSQL Docker uniquement (pour les bases de données) :**
+
+```bash
+# Démarrage automatique avec PostgreSQL dans Docker
+./start-local.sh
+
+# Puis démarrer le frontend
+cd frontend
+npm install
+npm start
+```
+
+**📚 Pour plus d'options et de détails, consultez [LOCAL_SETUP.md](LOCAL_SETUP.md)**
+
+Les services seront accessibles :
+- Frontend: http://localhost:3000
+- API Gateway: http://localhost:8888
+- Service Produit: http://localhost:8081
+- Service Commande: http://localhost:8082
+
+**Arrêter les services :**
+```bash
+./stop-local.sh
+```
+
+---
+
+### 🐳 Démarrage complet avec Docker Compose
 
 ```bash
 # Construire et démarrer tous les services

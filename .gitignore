@@ -50,3 +50,9 @@ package-lock.json
 /frontend/.env.development.local
 /frontend/.env.test.local
 /frontend/.env.production.local
+
+### Local Development ###
+logs/
+*.pid
+*.log
+/tmp/
