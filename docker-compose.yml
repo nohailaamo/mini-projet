@@ -74,6 +74,8 @@ services:
     depends_on:
       keycloak-db:
         condition: service_healthy
+    networks:
+      - microservices-network
     healthcheck:
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/realms/master || exit 1" ]
       interval: 30s
