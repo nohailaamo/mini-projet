@@ -18,7 +18,17 @@ NC='\033[0m'
 if [ -f logs/produit.pid ]; then
     PID=$(cat logs/produit.pid)
     echo -e "Arrêt du service Produit (PID: $PID)..."
-    kill $PID 2>/dev/null || echo -e "${YELLOW}⚠️  Processus Produit déjà arrêté${NC}"
+    if kill -0 $PID 2>/dev/null; then
+        kill -TERM $PID 2>/dev/null
+        sleep 2
+        # Force kill if still running
+        if kill -0 $PID 2>/dev/null; then
+            kill -KILL $PID 2>/dev/null
+        fi
+        echo -e "${GREEN}✓${NC} Service Produit arrêté"
+    else
+        echo -e "${YELLOW}⚠️  Service Produit déjà arrêté${NC}"
+    fi
     rm -f logs/produit.pid
 else
     echo -e "${YELLOW}⚠️  Service Produit non trouvé${NC}"
@@ -27,7 +37,17 @@ fi
 if [ -f logs/commande.pid ]; then
     PID=$(cat logs/commande.pid)
     echo -e "Arrêt du service Commande (PID: $PID)..."
-    kill $PID 2>/dev/null || echo -e "${YELLOW}⚠️  Processus Commande déjà arrêté${NC}"
+    if kill -0 $PID 2>/dev/null; then
+        kill -TERM $PID 2>/dev/null
+        sleep 2
+        # Force kill if still running
+        if kill -0 $PID 2>/dev/null; then
+            kill -KILL $PID 2>/dev/null
+        fi
+        echo -e "${GREEN}✓${NC} Service Commande arrêté"
+    else
+        echo -e "${YELLOW}⚠️  Service Commande déjà arrêté${NC}"
+    fi
     rm -f logs/commande.pid
 else
     echo -e "${YELLOW}⚠️  Service Commande non trouvé${NC}"
@@ -36,7 +56,17 @@ fi
 if [ -f logs/gateway.pid ]; then
     PID=$(cat logs/gateway.pid)
     echo -e "Arrêt de l'API Gateway (PID: $PID)..."
-    kill $PID 2>/dev/null || echo -e "${YELLOW}⚠️  Processus Gateway déjà arrêté${NC}"
+    if kill -0 $PID 2>/dev/null; then
+        kill -TERM $PID 2>/dev/null
+        sleep 2
+        # Force kill if still running
+        if kill -0 $PID 2>/dev/null; then
+            kill -KILL $PID 2>/dev/null
+        fi
+        echo -e "${GREEN}✓${NC} API Gateway arrêté"
+    else
+        echo -e "${YELLOW}⚠️  API Gateway déjà arrêté${NC}"
+    fi
     rm -f logs/gateway.pid
 else
     echo -e "${YELLOW}⚠️  API Gateway non trouvé${NC}"

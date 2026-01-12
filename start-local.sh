@@ -236,17 +236,17 @@ if [ "$BUILD_SERVICES" = true ]; then
     
     echo "Compilation du service Produit..."
     cd Produit
-    mvn clean install -DskipTests > /tmp/produit-build.log 2>&1 &
+    mvn clean install -DskipTests > ../logs/produit-build.log 2>&1 &
     PRODUIT_BUILD_PID=$!
     
     echo "Compilation du service Commande..."
     cd ../Commande
-    mvn clean install -DskipTests > /tmp/commande-build.log 2>&1 &
+    mvn clean install -DskipTests > ../logs/commande-build.log 2>&1 &
     COMMANDE_BUILD_PID=$!
     
     echo "Compilation de l'API Gateway..."
     cd ../Api-gateway
-    mvn clean install -DskipTests > /tmp/gateway-build.log 2>&1 &
+    mvn clean install -DskipTests > ../logs/gateway-build.log 2>&1 &
     GATEWAY_BUILD_PID=$!
     
     cd ..
@@ -258,7 +258,7 @@ if [ "$BUILD_SERVICES" = true ]; then
         echo -e "${GREEN}✓${NC} Service Produit compilé"
     else
         echo -e "${RED}✗${NC} Erreur lors de la compilation de Produit"
-        cat /tmp/produit-build.log | tail -20
+        cat logs/produit-build.log | tail -20
         exit 1
     fi
     
@@ -266,7 +266,7 @@ if [ "$BUILD_SERVICES" = true ]; then
         echo -e "${GREEN}✓${NC} Service Commande compilé"
     else
         echo -e "${RED}✗${NC} Erreur lors de la compilation de Commande"
-        cat /tmp/commande-build.log | tail -20
+        cat logs/commande-build.log | tail -20
         exit 1
     fi
     
@@ -274,7 +274,7 @@ if [ "$BUILD_SERVICES" = true ]; then
         echo -e "${GREEN}✓${NC} API Gateway compilé"
     else
         echo -e "${RED}✗${NC} Erreur lors de la compilation de Gateway"
-        cat /tmp/gateway-build.log | tail -20
+        cat logs/gateway-build.log | tail -20
         exit 1
     fi
     
