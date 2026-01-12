@@ -1,11 +1,7 @@
 package amouhal.nouhayla.commande.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Entity
 public class LigneCommande {
@@ -20,6 +16,7 @@ public class LigneCommande {
 
     @ManyToOne
     @JoinColumn(name = "commande_id")
+    @JsonIgnore  // Éviter la sérialisation circulaire
     private Commande commande;
 
     public LigneCommande() {}

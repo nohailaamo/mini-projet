@@ -39,23 +39,31 @@ const OrderList: React.FC = () => {
   const isAdmin = keycloak?.hasRealmRole('ADMIN');
 
   useEffect(() => {
-    loadOrders();
-    loadProducts();
-  }, [isAdmin]);
+    if (keycloak?.authenticated) {
+      loadOrders();
+      loadProducts();
+    }
+  }, [keycloak?.authenticated, isAdmin]);
 
   const loadOrders = async () => {
     try {
       setLoading(true);
+      console.log('Chargement des commandes... isAdmin:', isAdmin);
       const response = isAdmin ? await orderAPI.getAllOrders() : await orderAPI.getMyOrders();
+      console.log('Commandes reçues:', response.data);
       setOrders(response.data);
       setError(null);
     } catch (err: any) {
+      console.error('Erreur complète:', {
+        status: err.response?.status,
+        message: err.message,
+        data: err.response?.data,
+      });
       if (err.response?.status === 401 || err.response?.status === 403) {
         setError('Accès non autorisé. Veuillez vous connecter.');
       } else {
-        setError('Erreur lors du chargement des commandes');
+        setError(`Erreur lors du chargement des commandes: ${err.message}`);
       }
-      console.error('Error loading orders:', err);
     } finally {
       setLoading(false);
     }
@@ -63,10 +71,16 @@ const OrderList: React.FC = () => {
 
   const loadProducts = async () => {
     try {
+      console.log('Chargement des produits...');
       const response = await productAPI.getAll();
+      console.log('Produits reçus:', response.data);
       setProducts(response.data);
-    } catch (err) {
-      console.error('Error loading products:', err);
+    } catch (err: any) {
+      console.error('Erreur produits:', {
+        status: err.response?.status,
+        message: err.message,
+        data: err.response?.data,
+      });
     }
   };
 
@@ -87,21 +101,33 @@ const OrderList: React.FC = () => {
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const lignes = orderLines.map(line => {
-        const product = products.find(p => p.id === line.productId);
-        return {
-          produitId: line.productId,
-          quantite: line.quantity,
-          prix: product?.prix || 0
-        };
-      });
+      console.log('Création de commande avec lignes:', orderLines);
 
-      await orderAPI.create({ lignes });
+      // Créer l'objet commande avec les lignes
+      const commande = {
+        lignes: orderLines.map(line => {
+          const product = products.find(p => p.id === line.productId);
+          return {
+            produitId: line.productId,
+            quantite: line.quantity,
+            prix: product?.prix || 0
+          };
+        })
+      };
+
+      console.log('Payload envoyé:', commande);
+
+      await orderAPI.create(commande);
+      console.log('Commande créée avec succès');
       setShowCreateForm(false);
       setOrderLines([{ productId: 0, quantity: 1 }]);
       loadOrders();
     } catch (err: any) {
-      console.error('Error creating order:', err);
+      console.error('Erreur complète:', {
+        status: err.response?.status,
+        message: err.message,
+        data: err.response?.data,
+      });
       if (err.response?.data) {
         setError(err.response.data.message || 'Erreur lors de la création de la commande');
       } else {

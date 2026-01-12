@@ -38,9 +38,9 @@ const Navigation: React.FC = () => {
         <h1>Microservices App</h1>
       </div>
       <div className="nav-links">
-        <Link to="/products">Produits</Link>
-        {isClient && <Link to="/orders">Commandes</Link>}
-        {isAdmin && <Link to="/orders">Toutes les Commandes</Link>}
+        <Link to="/produits">Produits</Link>
+        {isClient && <Link to="/commandes">Commandes</Link>}
+        {isAdmin && <Link to="/commandes">Toutes les Commandes</Link>}
       </div>
       <div className="nav-user">
         <span className="username">
@@ -86,9 +86,9 @@ const AppContent: React.FC = () => {
       <Navigation />
       <main className="main-content">
         <Routes>
-          <Route path="/" element={<Navigate to="/products" replace />} />
+          <Route path="/" element={<Navigate to="/produits" replace />} />
           <Route
-            path="/products"
+            path="/produits"
             element={
               <PrivateRoute>
                 <ProductList />
@@ -96,7 +96,7 @@ const AppContent: React.FC = () => {
             }
           />
           <Route
-            path="/orders"
+            path="/commandes"
             element={
               <PrivateRoute>
                 <OrderList />

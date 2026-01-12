@@ -28,22 +28,30 @@ const ProductList: React.FC = () => {
   const isAdmin = keycloak?.hasRealmRole('ADMIN');
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    if (keycloak?.authenticated) {
+      loadProducts();
+    }
+  }, [keycloak?.authenticated]);
 
   const loadProducts = async () => {
     try {
       setLoading(true);
+      console.log('Chargement des produits...');
       const response = await productAPI.getAll();
+      console.log('Produits reçus:', response.data);
       setProducts(response.data);
       setError(null);
     } catch (err: any) {
+      console.error('Erreur complète:', {
+        status: err.response?.status,
+        message: err.message,
+        data: err.response?.data,
+      });
       if (err.response?.status === 401 || err.response?.status === 403) {
         setError('Accès non autorisé. Veuillez vous connecter.');
       } else {
-        setError('Erreur lors du chargement des produits');
+        setError(`Erreur lors du chargement des produits: ${err.message}`);
       }
-      console.error('Error loading products:', err);
     } finally {
       setLoading(false);
     }

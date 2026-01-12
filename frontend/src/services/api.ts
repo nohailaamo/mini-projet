@@ -1,49 +1,86 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8888';
+// URLs directes des microservices
+const PRODUCT_API_BASE_URL = 'http://localhost:8081';
+const ORDER_API_BASE_URL = 'http://localhost:8082';
 
-// Store the token in a module variable (works for SPA, ensure reload updates it)
+// Stockage du token JWT
 let jwtToken: string | null = null;
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
+// Instances axios séparées pour chaque microservice
+const productApi = axios.create({
+    baseURL: PRODUCT_API_BASE_URL,
 });
 
-// Use a request interceptor to always add Authorization if the token exists
-api.interceptors.request.use(
+const orderApi = axios.create({
+    baseURL: ORDER_API_BASE_URL,
+});
+
+// Ajoute le JWT à chaque requête pour Produits
+productApi.interceptors.request.use(
     (config) => {
-      if (jwtToken) {
-        config.headers = config.headers || {};
-        config.headers['Authorization'] = `Bearer ${jwtToken}`;
-      }
-      return config;
+        if (jwtToken) {
+            config.headers = config.headers || {};
+            config.headers['Authorization'] = `Bearer ${jwtToken}`;
+        }
+        return config;
     },
     (error) => Promise.reject(error)
 );
 
-/**
- * Set the JWT token for all outgoing requests
- * Call this after login or token refresh
- */
+// Ajoute le JWT à chaque requête pour Commandes
+orderApi.interceptors.request.use(
+    (config) => {
+        if (jwtToken) {
+            config.headers = config.headers || {};
+            config.headers['Authorization'] = `Bearer ${jwtToken}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// Intercepteur de réponse pour logs d'erreur
+productApi.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('Product API Error:', error.response?.status, error.response?.data);
+        return Promise.reject(error);
+    }
+);
+
+orderApi.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('Order API Error:', error.response?.status, error.response?.data);
+        return Promise.reject(error);
+    }
+);
+
+// Fonction pour mettre à jour le token
 export const setAuthToken = (token: string | null) => {
-  jwtToken = token;
+    jwtToken = token;
 };
 
 // Product APIs
 export const productAPI = {
-  getAll: () => api.get('/api/produits'),
-  getById: (id: number) => api.get(`/api/produits/${id}`),
-  create: (product: any) => api.post('/api/produits', product),
-  update: (id: number, product: any) => api.put(`/api/produits/${id}`, product),
-  delete: (id: number) => api.delete(`/api/produits/${id}`),
+    getAll: () => productApi.get('/api/produits'),
+    getById: (id: number) => productApi.get(`/api/produits/${id}`),
+    create: (product: any) => productApi.post('/api/produits', product),
+    update: (id: number, product: any) => productApi.put(`/api/produits/${id}`, product),
+    delete: (id: number) => productApi.delete(`/api/produits/${id}`),
 };
 
 // Order APIs
 export const orderAPI = {
-  getMyOrders: () => api.get('/api/commandes'),
-  getAllOrders: () => api.get('/api/commandes/all'),
-  getById: (id: number) => api.get(`/api/commandes/${id}`),
-  create: (order: any) => api.post('/api/commandes', order),
+    getMyOrders: () => orderApi.get('/api/commandes'),
+    getAllOrders: () => orderApi.get('/api/commandes/all'),
+    getById: (id: number) => orderApi.get(`/api/commandes/${id}`),
+    create: (order: any) => orderApi.post('/api/commandes', order),
 };
 
-export default api;
+export default {
+    productAPI,
+    orderAPI,
+    setAuthToken,
+};

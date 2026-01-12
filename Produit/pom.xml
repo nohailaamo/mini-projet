@@ -29,6 +29,8 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.resources.skip>false</maven.resources.skip>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -114,6 +116,26 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<!-- OWASP Dependency-Check Plugin -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>9.0.0</version>
+				<configuration>
+					<format>JSON,HTML</format>
+					<outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
+					<enableExperimental>false</enableExperimental>
+					<enableRetired>false</enableRetired>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

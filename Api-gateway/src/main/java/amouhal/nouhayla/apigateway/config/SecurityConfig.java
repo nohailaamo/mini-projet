@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // ✅ Autoriser les requêtes OPTIONS (préflight CORS)
                         .requestMatchers(HttpMethod.GET, "/api/produits/**").hasAnyRole("ADMIN", "CLIENT")
                         .requestMatchers(HttpMethod.POST, "/api/produits/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/produits/**").hasRole("ADMIN")

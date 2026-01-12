@@ -1,5 +1,7 @@
 package amouhal.nouhayla.commande.controller;
+import amouhal.nouhayla.commande.dto.CreateCommandeRequest;
 import amouhal.nouhayla.commande.entity.Commande;
+import amouhal.nouhayla.commande.entity.LigneCommande;
 import amouhal.nouhayla.commande.service.CommandeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +12,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3001")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8888"})
 @RequestMapping("/api/commandes")
 public class CommandeController {
 
@@ -26,17 +29,36 @@ public class CommandeController {
     // CLIENT: Créer une commande
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping
-    public ResponseEntity<Commande> createCommande(@RequestBody Commande commande,
+    public ResponseEntity<Commande> createCommande(@RequestBody CreateCommandeRequest request,
                                                    @AuthenticationPrincipal Jwt jwt) {
         String username = jwt.getClaimAsString("preferred_username");
         logger.info("Utilisateur {} crée une nouvelle commande", username);
-        commande.setClientUsername(username);
+
         try {
+            // Créer l'objet Commande
+            Commande commande = new Commande();
+            commande.setClientUsername(username);
+
+            // Créer les lignes de commande
+            List<LigneCommande> lignes = new ArrayList<>();
+            if (request.getLignes() != null) {
+                for (CreateCommandeRequest.LigneCommandeDto ligneDto : request.getLignes()) {
+                    LigneCommande ligne = new LigneCommande();
+                    ligne.setProduitId(ligneDto.getProduitId());
+                    ligne.setQuantite(ligneDto.getQuantite());
+                    ligne.setPrix(ligneDto.getPrix());
+                    ligne.setCommande(commande);
+                    lignes.add(ligne);
+                }
+            }
+            commande.setLignes(lignes);
+
+            logger.info("Commande avec {} lignes créée par {}", lignes.size(), username);
             Commande savedCommande = commandeService.createCommande(commande);
             logger.info("Commande {} créée avec succès par {}", savedCommande.getId(), username);
             return ResponseEntity.ok(savedCommande);
         } catch (Exception e) {
-            logger.error("Erreur lors de la création de commande par {}: {}", username, e.getMessage());
+            logger.error("Erreur lors de la création de commande par {}: {}", username, e.getMessage(), e);
             return ResponseEntity.badRequest().build();
         }
     }
