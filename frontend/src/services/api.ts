@@ -2,17 +2,31 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8888';
 
+// Store the token in a module variable (works for SPA, ensure reload updates it)
+let jwtToken: string | null = null;
+
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Add request interceptor to include JWT token
+// Use a request interceptor to always add Authorization if the token exists
+api.interceptors.request.use(
+    (config) => {
+      if (jwtToken) {
+        config.headers = config.headers || {};
+        config.headers['Authorization'] = `Bearer ${jwtToken}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+/**
+ * Set the JWT token for all outgoing requests
+ * Call this after login or token refresh
+ */
 export const setAuthToken = (token: string | null) => {
-  if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common['Authorization'];
-  }
+  jwtToken = token;
 };
 
 // Product APIs

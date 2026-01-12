@@ -15,6 +15,21 @@ import java.util.Optional;
 
 @Service
 public class CommandeService {
+    public CommandeRepository getCommandeRepository() {
+        return commandeRepository;
+    }
+
+    public void setCommandeRepository(CommandeRepository commandeRepository) {
+        this.commandeRepository = commandeRepository;
+    }
+
+    public ProduitClient getProduitClient() {
+        return produitClient;
+    }
+
+    public void setProduitClient(ProduitClient produitClient) {
+        this.produitClient = produitClient;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(CommandeService.class);
 
