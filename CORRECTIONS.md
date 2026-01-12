@@ -12,21 +12,28 @@ Lorsque l'utilisateur démarrait l'application en local, le frontend se connecta
 
 **Solution** : Modification du mapping de port dans `docker-compose.yml` de `8080:8080` à `8180:8080`.
 
-### 2. Décalage de port de base de données Produit
+### 2. Configuration réseau manquante pour Keycloak
+**Problème** : Le service Keycloak dans `docker-compose.yml` n'avait pas de configuration `networks`, ce qui l'empêchait de communiquer avec sa base de données `keycloak-db`.
+
+**Impact** : Keycloak ne pouvait pas démarrer car il ne pouvait pas se connecter à sa base de données PostgreSQL.
+
+**Solution** : Ajout de la configuration `networks: - microservices-network` au service Keycloak.
+
+### 3. Décalage de port de base de données Produit
 **Problème** : Le service Produit dans `docker-compose.yml` expose la base de données sur le port `5434:5432`, mais `Produit/src/main/resources/application.properties` était configuré pour se connecter au port `5433`.
 
 **Impact** : Le service Produit ne pouvait pas se connecter à sa base de données.
 
 **Solution** : Modification de l'URL de connexion dans `application.properties` de `jdbc:postgresql://localhost:5433/produitdb` à `jdbc:postgresql://localhost:5434/produitdb`.
 
-### 3. Absence de données initiales
+### 4. Absence de données initiales
 **Problème** : Aucune donnée de produit n'était initialisée au démarrage de l'application.
 
 **Impact** : Même si les services fonctionnaient correctement, la liste des produits était vide.
 
 **Solution** : Création d'un composant `DataInitializer` qui ajoute automatiquement 8 produits d'exemple au démarrage si la base de données est vide.
 
-### 4. Configuration de sécurité incomplète dans API Gateway
+### 5. Configuration de sécurité incomplète dans API Gateway
 **Problème** : L'API Gateway ne configurait pas correctement le convertisseur JWT pour extraire les rôles Keycloak.
 
 **Impact** : Même avec un token valide, les autorisations basées sur les rôles (ADMIN/CLIENT) ne fonctionnaient pas correctement.
@@ -39,12 +46,30 @@ Lorsque l'utilisateur démarrait l'application en local, le frontend se connecta
 ## Fichiers modifiés
 
 ### 1. docker-compose.yml
+**Changement 1 - Port Keycloak:**
 ```yaml
 # Avant
 ports: [ "8080:8080" ]
 
 # Après
 ports: [ "8180:8080" ]
+```
+
+**Changement 2 - Réseau Keycloak:**
+```yaml
+# Avant
+  keycloak:
+    ...
+    healthcheck:
+      ...
+
+# Après
+  keycloak:
+    ...
+    networks:
+      - microservices-network
+    healthcheck:
+      ...
 ```
 
 ### 2. Produit/src/main/resources/application.properties
